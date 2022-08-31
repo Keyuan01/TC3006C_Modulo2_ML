@@ -1,80 +1,75 @@
-import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import pylab
 
 # Usar sólo las columnas necesarias
 columns = ['MinTemp', 'MaxTemp']
 df = pd.read_csv("weatherAUS.csv", usecols= columns)
+
 # df = df.groupby(['Date'])[['MinTemp','MaxTemp']]
-# df.info()
 
-# Valores iniciales
-m = 0.1
-alfa = 0.001
-b = 1
-epocas = 100
-
-x = df['MinTemp'].values
-y = df['MaxTemp'].values
+x = df['MinTemp']
+y = df['MaxTemp']
 
 # print(df.info())
 
-'''
-Modelo
-m*x+b
-'''
-def modelo(m,x,b):
-    return m*x + b
-
-'''
-Mean Square Error
-n: cantidad de muestras
-y: valores reales
-y_p: valores predicha
-'''
-
-def mse(y, y_p):
-
-    n = y.shape[0]
-    #Sumatoria de los errores al cuadrado
-    mean_square_error = np.sum((y-y_p)**2)
-
-    return mean_square_error/n
-
-def reg_lineal_gd(x, y, m, b, alfa):
-
-    n = x.shape[0]
-    
-    # Derivada
-    dm = -(2/n)*np.sum(x*(y-(m*x+b)))
-    db = -(2/n)*np.sum(y-(m*x+b))
-
-    m = m - alfa*dm
-    b = b - alfa*db
-
-    return m, b
-
+# Valores iniciales
+alfa = 0.001
+b = 0
+m = 0.1
+epocas = 1000
 
 # Crear un arreglo de ceros para almacenar los errores
 error = np.zeros((epocas,1))
 
-for i in range(epocas):
-    [m, b] = reg_lineal_gd(x, y, m, b, alfa)
+# Mean Square Error
+def mse(b, m, x, y):
+    n = y.shape[0]
 
-    y_p = modelo(m, x, b)
+    #Sumatoria de los errores al cuadrado
+    mean_square_error = np.sum((y-m*x-b)**2)
+    return mean_square_error/n
 
-    error[i] = mse(y, y_p)
+def optimizer(x, y, b, m, alfa, epocas, error):
 
+    #Gradiente descendente
+    for i in range(epocas):
+        # Actualizar b y m
+        b, m = compute_gradient(b, m, x, y, alfa)
+        # Almacenar MSE a un arreglo
+        error[i] = mse(b, m, x, y)
+        
+    return b, m
 
-#print(df.head())
-plt.plot(range(epocas), error)
-plt.xlabel('Epocas')
-plt.ylabel('MSE')
-plt.show()
+# Actualizar b y m
+def compute_gradient(b, m, x, y, alfa):
 
-y_regr = modelo(m,b,x)
-plt.scatter(x,y)
-plt.plot(x,y_regr,'r')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.show()
+    # Derivada
+    n = y.shape[0]
+
+    db = -(2/n)*np.sum(y-m*x-b)
+    dm = -(2/n)*np.sum(x*(y-m*x-b))
+    
+    # A través de Alfa(Learning rate) actualizar b y m
+    b = b - (alfa * db)
+    m = m - (alfa * dm)
+
+    return b, m
+
+def plot_df(x, y, b, m, error, epocas):
+
+    pylab.plot(range(epocas), error)
+    pylab.xlabel('Epocas')
+    pylab.ylabel('MSE')
+    pylab.show()
+
+    y_predict = m*x+b
+    pylab.plot(x,y,'o')
+    pylab.plot(x,y_predict,'k-')
+    pylab.show()
+
+#Optimización de b y m
+b, m = optimizer(x, y, b, m, alfa, epocas, error)
+
+#Graficar los resultados
+plot_df(x, y, b, m, error, epocas)
