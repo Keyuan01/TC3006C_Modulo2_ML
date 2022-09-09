@@ -80,4 +80,4 @@ b, m = optimizer(x, y, b, m, alfa, epocas, error)
 #Graficar los resultados
 plot_df(x, y, b, m, error, epocas)
 
-print(error[-1])
+# print(error[-1])
