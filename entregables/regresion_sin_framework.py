@@ -1,5 +1,3 @@
-from cProfile import label
-from cgi import print_arguments
 import numpy as np
 import pandas as pd
 import pylab
