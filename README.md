@@ -1,3 +1,6 @@
 # Modulo2_ML 
 
-El avance de entregable está en la carpeta de entregable
+Entregable 1: regresion_sin_framework.py
+Entregable 2: regresion_con_framework.py
+Entregable 3: analisis.docx
+

@@ -1,10 +1,15 @@
+from cProfile import label
+from cgi import print_arguments
 import numpy as np
 import pandas as pd
 import pylab
 
 # Usar sólo las columnas necesarias
-columns = ['MinTemp', 'MaxTemp']
+columns = ['Location','MinTemp', 'MaxTemp']
 df = pd.read_csv("weatherAUS.csv", usecols= columns)
+
+# Sólo usar la ciudad de Canberra para establecer el modelo
+df = df[df['Location'] == 'Canberra']
 
 # df = df.groupby(['Date'])[['MinTemp','MaxTemp']]
 
@@ -16,8 +21,8 @@ y = df['MaxTemp']
 # Valores iniciales
 alfa = 0.001
 b = 0
-m = 0.1
-epocas = 1000
+m = 0
+epocas = 5000
 
 # Crear un arreglo de ceros para almacenar los errores
 error = np.zeros((epocas,1))
@@ -64,7 +69,10 @@ def plot_df(x, y, b, m, error, epocas):
     pylab.show()
 
     y_predict = m*x+b
-    pylab.plot(x,y,'o')
+    pylab.plot(x,y,'o', alpha=0.2)
+    pylab.xlabel('Temp Min')
+    pylab.ylabel('Temp Max')
+    pylab.title('Temperatura de la ciudad Canberra')
     pylab.plot(x,y_predict,'k-')
     pylab.show()
 
@@ -73,3 +81,5 @@ b, m = optimizer(x, y, b, m, alfa, epocas, error)
 
 #Graficar los resultados
 plot_df(x, y, b, m, error, epocas)
+
+print(error[-1])
